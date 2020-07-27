@@ -14,20 +14,20 @@ Flash_Identifier is a toolkit for extracting flash signals from a timestamp data
 ## Test
 Download a timestamp data measured from *Abscondita  cerata*:
 ```
-$ wget https://github.com/Kinggerm/GetOrganelleGallery/raw/master/Test/reads/Arabidopsis_simulated.1.fq.gz
+$ wget https://github.com/Wangpoching/Flash-Identifier/blob/master/Test/sample/180411NK_BM1.csv
 ```
 Then do the fast flash identify:
 
 `$ ./Flash_Identifier.R -180411NK_BM1.csv`
 
-You are going to get the same result as here.
+You are going to get the same result as [here](https://github.com/Wangpoching/Flash-Identifier/tree/master/Test/result).
 ## Instruction
 #### Preparing Data
 Currently, Flash_Identifier.R was written for CSV file. Please note that the first column recored the timestamp and the second column recorded the measured value. 
 
 
 #### Flash Identifier Flowchart
-![GITHUB](https://drive.google.com/file/d/13VaI8umcaArPHzBy7pGhuUs0-xYfYFR5/view?usp=sharing "Flash Identifier Flowchart")
+![GITHUB](![README FLOWCHART](https://user-images.githubusercontent.com/43576010/88529405-8a923000-d032-11ea-8fe9-cbcfe3e6b75e.jpg) "Flash Identifier Flowchart")
 
 
 ## Recipes
