@@ -59,7 +59,7 @@ If I want to set a peak filter coefficient 1 (defalt=0.3) by myself:
 
 ## Contact
 If your question is running specific, please attach the flash_ide.log.txt file
-* Report bugs & Open issues here.
+* Report bugs & Open issues [here](https://github.com/Wangpoching/Flash-Identifier/issues).
 * Send email to me ([b04208021@g.ntu.edu.tw](https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&source=mailto&to=b04208021@g.ntu.edu.tw))
 
 
