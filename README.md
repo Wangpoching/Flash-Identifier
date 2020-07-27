@@ -27,7 +27,7 @@ Currently, Flash_Identifier.R was written for CSV file. Please note that the fir
 
 
 #### Flash Identifier Flowchart
-![README FLOWCHART](https://user-images.githubusercontent.com/43576010/88529405-8a923000-d032-11ea-8fe9-cbcfe3e6b75e.jpg) "Flash Identifier Flowchart")
+![README FLOWCHART](https://user-images.githubusercontent.com/43576010/88529405-8a923000-d032-11ea-8fe9-cbcfe3e6b75e.jpg "Flash Identifier Flowchart")
 
 
 ## Recipes
