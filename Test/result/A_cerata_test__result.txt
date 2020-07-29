@@ -1,0 +1,7 @@
+### File
+
+A_cerata_test.csv
+
+### Descriptive statistics
+max_peak   median_peak   max_energy   median_energy           frequency   
+     144           102      33.5128        20.46065   0.722493635175119
