@@ -25,7 +25,9 @@ You are going to get the same result as [here](https://github.com/Wangpoching/Fl
 ## Instruction
 #### Preparing Data
 Currently, Flash_Identifier.R was written for CSV file. Please note that the first column recored the timestamps and the second column recorded the measured values. 
-
+#### Peak filter coefficient
+Larger peak filter coefficient will produce a larger peak threshold, and vice versa. Peaks under the threshold will be removed. To estimate the proper peak filter coefficient value, you can check the [output picture](https://github.com/Wangpoching/Flash-Identifier/tree/master/Test/result/A_cerata_test_coefficient-peakcount.png
+).
 
 #### Flash Identifier Flowchart
 ![README FLOWCHART](https://user-images.githubusercontent.com/43576010/88529405-8a923000-d032-11ea-8fe9-cbcfe3e6b75e.jpg "Flash Identifier Flowchart")
@@ -59,8 +61,8 @@ If I want to set a peak filter coefficient 1 (defalt=0.3) by myself:
 
 
 ## Contact
-If your question is running specific, please attach the flash_ide.log.txt file
-* Report bugs & Open issues [here](https://github.com/Wangpoching/Flash-Identifier/issues).
+If your question is running specific, please attach the `flash_ide.log.txt`file.
+* Report bugs & Open issues [here](https://github.com/Wangpoching/Flash-Identifier/issues)
 * Send email to me ([b04208021@g.ntu.edu.tw](https://mail.google.com/mail/u/0/?view=cm&fs=1&tf=1&source=mailto&to=b04208021@g.ntu.edu.tw))
 
 
