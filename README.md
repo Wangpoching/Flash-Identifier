@@ -9,21 +9,22 @@ Flash_Identifier is a toolkit for extracting flash signals from a timestamp data
 
 * Linux
 * R 3.4 and higher
+* To make Flash_Identifier.R excutable
 
 `$ chmod -rwx Flash_Identifier.R`
 ## Test
 Download a timestamp data measured from *Abscondita  cerata*:
 ```
-$ wget https://github.com/Wangpoching/Flash-Identifier/blob/master/Test/sample/180411NK_BM1.csv
+$ wget https://github.com/Wangpoching/Flash-Identifier/blob/master/Test/sample/A_cerata_test.csv
 ```
-Then do the fast flash identify:
+Then do a quick flash identificaion:
 
-`$ ./Flash_Identifier.R -180411NK_BM1.csv`
+`$ ./Flash_Identifier.R -A_cerata_test.csv`
 
 You are going to get the same result as [here](https://github.com/Wangpoching/Flash-Identifier/tree/master/Test/result).
 ## Instruction
 #### Preparing Data
-Currently, Flash_Identifier.R was written for CSV file. Please note that the first column recored the timestamp and the second column recorded the measured value. 
+Currently, Flash_Identifier.R was written for CSV file. Please note that the first column recored the timestamps and the second column recorded the measured values. 
 
 
 #### Flash Identifier Flowchart
