@@ -4,6 +4,7 @@ if(!require(argparser)){install.packages("argparser")}
 if(!require(ggplot2)){install.packages("ggplot2")}
 if(!require(zoo)){install.packages("zoo")}
 if(!require(cli)){install.packages("cli")}
+if(!require(log4r)){install.packages("log4r")}
 
 p <- arg_parser("The flash calculator")
 # Add a positional argument
@@ -29,6 +30,25 @@ debug_msg <- function(...){
   if (isTRUE(argv$debu)){
     cat(paste0("DEBUG: ",...,"\n"))
   }
+}
+
+### set log file
+logger <- create.logger()
+logfile(logger) <- "flash_ide.log.txt"
+level(logger) <- "DEBUG"
+
+### create tryerror function
+tryerror = function(x){
+  tryCatch({
+    x},
+    error = function(msg) {
+      error(logger,msg)
+    },
+    warning = function(msg) {
+      warn(logger,msg)
+    }
+  ) 
+  
 }
 
 ###create needed functions
@@ -77,55 +97,67 @@ return (align)
 
 ###Read File
 debug_msg("Debug option is set")
-
+debug(logger,sprintf("Your input file is :%s ",argv$input_path))
 debug_msg("Your input file is : ", argv$input_path)
+tryerror(csv_dir_path = dirname(argv$input_path))
+tryerror(csv_file_name = sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(argv$input_path)))
+tryerror(output_file_path = file.path(csv_dir_path, paste(csv_file_name, '_', '_result.txt', sep="")))
 
-csv_dir_path = dirname(argv$input_path)
-csv_file_name = sub(pattern = "(.*)\\..*$", replacement = "\\1", basename(argv$input_path))
-output_file_path = file.path(csv_dir_path, paste(csv_file_name, '_', '_result.txt', sep=""))
 
-Data = read.table(argv$input_path, header=TRUE, sep=",")
+tryerror(Data = read.table(argv$input_path, header=TRUE, sep=","))
+debug(logger,"Loading input file successfully")
 debug_msg("Loading input file successfully")
-Data = na.omit(Data)
+tryerror(Data = na.omit(Data))
+debug(logger,sprintf("Omiting %.0f missing values successfully",sum(is.na(Data))))
 debug_msg(sprintf("Omiting %.0f missing values successfully",sum(is.na(Data))))
-Time <- as.vector(Data[,1])
+tryerror(Time <- as.vector(Data[,1]))
+debug(logger,"Loading time series successfullly")
 debug_msg("Loading time series successfullly")
-Fa <- as.vector(Data[,2])*10^9
+tryerror(Fa <- as.vector(Data[,2]))
+debug(logger,"Loading value series successfully")
 debug_msg("Loading value series successfully")
-clean_data <- data.frame(Fa,Time)
-overview <- ggplot(clean_data,aes(Time,Fa))+geom_line()+xlab("Time")+ylab("Value")+ggtitle(paste(csv_file_name,"_original"))
-ggsave(file.path(csv_dir_path, paste(csv_file_name,'_original.png')))
+tryerror(clean_data <- data.frame(Fa,Time))
+tryerror(overview <- ggplot(clean_data,aes(Time,Fa))+geom_line()+xlab("Time")+ylab("Value")+ggtitle(paste(csv_file_name,"_original")))
+tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_original.png'))))
+debug(logger,"Saving original plot successfully")
 debug_msg("Saving original plot successfully")
 
-Large <- hill(Fa)
+
+
+tryerror(Large <- hill(Fa))
+debug(logger,"Identifying hills successfully")
 debug_msg("Identifying hills successfully")
-Large_threshold <- (quantile(Fa)[4]-quantile(Fa)[2])*argv$filter+quantile(Fa)[2]  ##清除fake peak
+tryerror(Large_threshold <- (quantile(Fa)[4]-quantile(Fa)[2])*argv$filter+quantile(Fa)[2])  ##清除fake peak
+debug(logger,sprintf("Setting hill filter:%f successfully",argv$filter))
 debug_msg(sprintf("Setting hill filter:%f successfully",argv$filter))
-hillnotrim <- ggplot()+geom_line(aes(x=Time,y=Fa),color="grey")+geom_point(aes(x=Time[Large],y=Fa[Large]),shape=21, color="black", fill="#69b3a2")+ggtitle(paste(csv_file_name ,"_peaknotrim") )+xlab("Time")+ylab("Value")
-ggsave(file.path(csv_dir_path, paste(csv_file_name,'_peaknotrim.png')))
+tryerror(hillnotrim <- ggplot()+geom_line(aes(x=Time,y=Fa),color="grey")+geom_point(aes(x=Time[Large],y=Fa[Large]),shape=21, color="black", fill="#69b3a2")+ggtitle(paste(csv_file_name ,"_peaknotrim") )+xlab("Time")+ylab("Value"))
+tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_peaknotrim.png'))))
+debug(logger,"Saving peaknotrim plot successfully")
 debug_msg("Saving peaknotrim plot successfully")
 
 
-coefficient <- seq(0.1,2,0.1)
-hillcount <- c()
-for (i in 1:length(coefficient)) {
+
+tryerror(coefficient <- seq(0.1,2,0.1))
+tryerror(hillcount <- c())
+tryerror(for (i in 1:length(coefficient)) {
   Large_threshold_test <- (quantile(Fa)[4]-quantile(Fa)[2])*coefficient[i]+quantile(Fa)[2] 
   Large_test <- Large[which(Fa[Large]>Large_threshold_test)]
   hillcount[i] <- length(Large_test)
-}
-hillcount_df <- data.frame(coefficient,hillcount)
-for (i in 1:nrow(hillcount_df)){
+})
+tryerror(hillcount_df <- data.frame(coefficient,hillcount))
+tryerror(for (i in 1:nrow(hillcount_df)){
   hillcount_df$text[i] <- paste0(c("(",hillcount_df$coefficient[i],",",hillcount_df$hillcount[i],")"),collapse="")
-}
-hillcount_plot <- ggplot(hillcount_df,aes(x=coefficient,y=hillcount))+geom_line()+geom_point(shape=21, color="black", fill="#8CEA00")+ggtitle(paste(csv_file_name,"_coefficient-peakcount"))+xlab("Coefficient")+ylab("Number of peak remained")+geom_text(label=hillcount_df$text, nudge_x = 0.25, nudge_y = 0.25, check_overlap = T)
-ggsave(file.path(csv_dir_path, paste(csv_file_name,'_coefficient-peakcount.png')))
+})
+tryerror(hillcount_plot <- ggplot(hillcount_df,aes(x=coefficient,y=hillcount))+geom_line()+geom_point(shape=21, color="black", fill="#8CEA00")+ggtitle(paste(csv_file_name,"_coefficient-peakcount"))+xlab("Coefficient")+ylab("Number of peak remained")+geom_text(label=hillcount_df$text, nudge_x = 0.25, nudge_y = 0.25, check_overlap = T))
+tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_coefficient-peakcount.png'))))
+debug(logger,"Saving coefficient-peakcount plot successfully")
 debug_msg("Saving coefficient-peakcount plot successfully")
 
-Large <- Large[which(Fa[Large]>Large_threshold)]
-Time_Large_0 = Time[Large][1:length(Time[Large])-1]
-Time_Large_1 = Time[Large][2:length(Time[Large])]
-Time_Large_index = Time_Large_1-Time_Large_0
-if (length(which(Time_Large_index<mean(Time_Large_index)*0.25)) != 0)
+tryerror(Large <- Large[which(Fa[Large]>Large_threshold)])
+tryerror(Time_Large_0 = Time[Large][1:length(Time[Large])-1])
+tryerror(Time_Large_1 = Time[Large][2:length(Time[Large])])
+tryerror(Time_Large_index = Time_Large_1-Time_Large_0)
+tryerror(if (length(which(Time_Large_index<mean(Time_Large_index)*0.25)) != 0)
 {cluster_index = which(Time_Large_index<mean(Time_Large_index)*0.25)
 remove_index = c()
 for (i in c(1:length(cluster_index)))
@@ -139,112 +171,135 @@ if (smaller == 1)
 }  
 Large <- Large[-remove_index]
 }else 
-{Large = Large}
+{Large = Large})
+debug(logger,"Filtering peaks successfully")
 debug_msg("Filtering peaks successfully")
-hilltrimed <- ggplot()+geom_line(aes(x=Time,y=Fa))+geom_point(aes(x=Time[Large],y=Fa[Large]),shape=21, color="black", fill="#69b3a2")+geom_hline(yintercept = Large_threshold,col='#424200' )+ggtitle(paste(csv_file_name ,"_peaktrimed"))+xlab("Time")+ylab("Value")
-ggsave(file.path(csv_dir_path, paste(csv_file_name,'_peaktrimed.png')))
+tryerror(hilltrimed <- ggplot()+geom_line(aes(x=Time,y=Fa))+geom_point(aes(x=Time[Large],y=Fa[Large]),shape=21, color="black", fill="#69b3a2")+geom_hline(yintercept = Large_threshold,col='#424200' )+ggtitle(paste(csv_file_name ,"_peaktrimed"))+xlab("Time")+ylab("Value"))
+tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_peaktrimed.png'))))
+debug(logger,"Saving peaktrimed plot successfully")
 debug_msg("Saving peaktrimed plot successfully")
 
-Minimum <- valley(Fa,Large)
+
+tryerror(Minimum <- valley(Fa,Large))
+debug(logger,"Identifying valleys successfully")
 debug_msg("Identifying valleys successfully")
-flash_df <- data.frame(start = c(0) , end = c(0)) 
-flash_df[1,1] <- Minimum[1]
-for (i in 1:length(Minimum))
+tryerror(flash_df <- data.frame(start = c(0) , end = c(0)) )
+tryerror(flash_df[1,1] <- Minimum[1])
+tryerror(for (i in 1:length(Minimum))
 { 
   flash_df[i,2] <- subsequentneighbor(subsequentneighbor(flash_df[i,1],Large),Minimum)
   if (flash_df[i,2]==Minimum[length(Minimum)]) break
   flash_df[i+1,1] <- flash_df[i,2]
-}
-hillvalley_plot <- ggplot()+geom_line(aes(x=Time,y=Fa))+geom_point(aes(x=Time[Large],y=Fa[Large]),shape=21, color="black", fill="#69b3a2")+geom_point(aes(x=Time[Minimum],y=Fa[Minimum]),shape=21, color="black", fill="#FFD306")+ggtitle(paste(csv_file_name,"_peak & valley"))
-ggsave(file.path(csv_dir_path, paste(csv_file_name,'_peak & valley.png')))
+})
+tryerror(hillvalley_plot <- ggplot()+geom_line(aes(x=Time,y=Fa))+geom_point(aes(x=Time[Large],y=Fa[Large]),shape=21, color="black", fill="#69b3a2")+geom_point(aes(x=Time[Minimum],y=Fa[Minimum]),shape=21, color="black", fill="#FFD306")+ggtitle(paste(csv_file_name,"_peak & valley")))
+tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_peak & valley.png'))))
+debug(logger,"Saving peak_valley plot successfully")
 debug_msg("Saving peak & valley plot successfully")
-write.table(flash_df,file.path(csv_dir_path, paste(csv_file_name,'_flash table.csv')))
+tryerror(write.table(flash_df,file.path(csv_dir_path, paste(csv_file_name,'_flash table.csv'))))
+debug(logger,"Saving flash table successfully")
 debug_msg("Saving flash table successfully")
 
-Fa_cluster <- list()
-for (i in 1:(nrow(flash_df)))
-{Fa_cluster[[i]] <- Fa[c(flash_df[i,1]):c(flash_df[i,2]) ] } 
-Time_cluster <- list()
-for (i in 1:(nrow(flash_df)))
-{Time_cluster[[i]] <- Time[c(flash_df[i,1]):c(flash_df[i,2]) ]}
+
+
+
+tryerror(Fa_cluster <- list())
+tryerror(for (i in 1:(nrow(flash_df)))
+{Fa_cluster[[i]] <- Fa[c(flash_df[i,1]):c(flash_df[i,2]) ] } )
+tryerror(Time_cluster <- list())
+tryerror(for (i in 1:(nrow(flash_df)))
+{Time_cluster[[i]] <- Time[c(flash_df[i,1]):c(flash_df[i,2]) ]})
+debug(logger,"Building value clusters and time clusters successfully")
 debug_msg("Building value clusters and time clusters successfully")
 
-area_all <- c()
-for (j in 1:length(Fa_cluster))
+
+tryerror(area_all <- c())
+tryerror(for (j in 1:length(Fa_cluster))
 {area <- c()
 for (i in 1:(length(Fa_cluster[[j]])-1))
 {area[i] <- (Fa_cluster[[j]][i+1]+Fa_cluster[[j]][i])*(Time_cluster[[j]][i+1]-Time_cluster[[j]][i])*0.5
 }
 area_all[j] <- sum(area)
-}
+})
+debug(logger,"Calculating curve area under each flash successfully")
 debug_msg("Calculating curve area under each flash successfully")
 
-base_line = argv$en
-if (isTRUE(argv$en_median)){
+
+tryerror(base_line = argv$en)
+tryerror(if (isTRUE(argv$en_median)){
 base_line = median(Fa[Minimum])
 }else if (isTRUE(argv$en_minimum)){
 base_line = Fa[Minimum][which.min(Fa[Minimum])]  
-}
+})
+debug(logger,sprintf("Enviromental background:%f",base_line))
 debug_msg(sprintf("Enviromental background:%f",base_line))
 
-base_area <- c()
-for (j in 1:length(Time_cluster))
+
+tryerror(base_area <- c())
+tryerror(for (j in 1:length(Time_cluster))
 {base_area[j] <- base_line*(Time_cluster[[j]][length(Time_cluster[[j]])]-Time_cluster[[j]][1])
-}
-flash_energy = area_all-base_area
+})
+tryerror(flash_energy = area_all-base_area)
+tryerror(flash_df$energy <- flash_energy)
+tryerror(write.table(flash_df,sep=",",row.names=F,file.path(csv_dir_path, paste(csv_file_name,'_flash table.csv'))))
 debug_msg("Calculating flash energy successfully")
-flash_df$energy <- flash_energy
-write.table(flash_df,sep=",",row.names=F,file.path(csv_dir_path, paste(csv_file_name,'_flash table.csv')))
 debug_msg("Saving flash table successfully")
 
-peak <- c()
-for (j in 1:length(Fa_cluster))
+
+tryerror(peak <- c())
+tryerror(for (j in 1:length(Fa_cluster))
 {peak[j] <- max(Fa_cluster[[j]])  
-}
-flash_df$peak <- peak
-write.table(flash_df,sep=",",row.names=F,file.path(csv_dir_path, paste(csv_file_name,'_flash table.csv')))
+})
+tryerror(flash_df$peak <- peak)
+tryerror(write.table(flash_df,sep=",",row.names=F,file.path(csv_dir_path, paste(csv_file_name,'_flash table.csv'))))
+debug(logger,"Saving flash table successfully")
 debug_msg("Saving flash table successfully")
 
-flash_df$number <- seq(1,nrow(flash_df),1)
-peak_plot <- ggplot(flash_df,aes(x = number,y= peak)) +geom_bar(stat="identity", color="#e9ecef", alpha=0.9) +ggtitle(paste(csv_file_name ,"_peak")) +theme(plot.title = element_text(size=15) )
-ggsave(file.path(csv_dir_path, paste(csv_file_name,'_peak_barplot.png')))
+
+tryerror(flash_df$number <- seq(1,nrow(flash_df),1))
+tryerror(peak_plot <- ggplot(flash_df,aes(x = number,y= peak)) +geom_bar(stat="identity", color="#e9ecef", alpha=0.9) +ggtitle(paste(csv_file_name ,"_peak")) +theme(plot.title = element_text(size=15) ))
+tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_peak_barplot.png'))))
+debug(logger,"Saving peak barplot successfully")
 debug_msg("Saving peak barplot successfully")
 
-peak_plot <- ggplot(flash_df,aes(x = number,y= energy)) +geom_bar(stat="identity", color="blue", alpha=0.9,fill="white") +ggtitle(paste(csv_file_name ,"_energy")) +theme(plot.title = element_text(size=15) )
-ggsave(file.path(csv_dir_path, paste(csv_file_name,'_energy_barplot.png')))
+
+tryerror(peak_plot <- ggplot(flash_df,aes(x = number,y= energy)) +geom_bar(stat="identity", color="blue", alpha=0.9,fill="white") +ggtitle(paste(csv_file_name ,"_energy")) +theme(plot.title = element_text(size=15) ))
+tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_energy_barplot.png'))))
+debug(logger,"Saving energy barplot successfully")
 debug_msg("Saving energy barplot successfully")
 
-max_peak <- stralignR(c("max_peak",max(flash_df$peak)))
-median_peak <- stralignR(c("median_peak",median(flash_df$peak)))
-max_energy <- stralignR(c("max_energy",max(flash_df$energy)))
-median_energy <- stralignR(c("median_energy",median(flash_df$energy)))
-frequency <- stralignR(c("frequency",nrow(flash_df)/( Time[flash_df$end[nrow(flash_df)]]-Time[flash_df$start[1]])))
-cat("### File\n", argv$input_path, file=output_file_path, sep="\n", append=FALSE)
-cat("\n### Descriptive statistics\n", file=output_file_path, append=TRUE)
-statistics <-  c(max_peak,median_peak,max_energy,median_energy,frequency)
-stastistics_name <- c(statistics[c(1,3,5,7,9)],"\n")
-stastistics_value <- statistics[c(2,4,6,8,10)]
-cat(stastistics_name,sep="   ",file=output_file_path, append=TRUE)
-cat(stastistics_value,sep="   ",file=output_file_path, append=TRUE)
+
+tryerror(max_peak <- stralignR(c("max_peak",max(flash_df$peak))) )
+tryerror(median_peak <- stralignR(c("median_peak",median(flash_df$peak))) )
+tryerror(max_energy <- stralignR(c("max_energy",max(flash_df$energy))) )
+tryerror(median_energy <- stralignR(c("median_energy",median(flash_df$energy))) )
+tryerror(frequency <- stralignR(c("frequency",nrow(flash_df)/( Time[flash_df$end[nrow(flash_df)]]-Time[flash_df$start[1]]))) )
+tryerror(cat("### File\n", argv$input_path, file=output_file_path, sep="\n", append=FALSE) )
+tryerror(cat("\n### Descriptive statistics\n", file=output_file_path, append=TRUE) )
+tryerror(statistics <-  c(max_peak,median_peak,max_energy,median_energy,frequency) )
+tryerror(stastistics_name <- c(statistics[c(1,3,5,7,9)],"\n") )
+tryerror(stastistics_value <- statistics[c(2,4,6,8,10)] )
+tryerror(cat(stastistics_name,sep="   ",file=output_file_path, append=TRUE) )
+tryerror(cat(stastistics_value,sep="   ",file=output_file_path, append=TRUE) )
+debug(logger,"Outputing statistics successfully")
 debug_msg("Outputing statistics successfully")
 
-fun <- function() {
-  cli_ol()
-  cli_li("File")
-  ulid <- cli_ul()
-  cli_li(argv$input_path)
-  cli_end(ulid)
-  cli_li("Statistics")
-  ulid <- cli_ul()
-  cli_li(paste0("Max_peak: ",as.character(max(flash_df$peak))))
-  cli_li(paste0("Median_peak: ",as.character(median(flash_df$peak))))
-  cli_li(paste0("Max_energy: ",as.character(max(flash_df$energy))))
-  cli_li(paste0("Median_energy: ",as.character(median(flash_df$energy))))
-  cli_li(paste0("Max_peak: ",as.character(nrow(flash_df)/( Time[flash_df$end[nrow(flash_df)]]-Time[flash_df$start[1]]      ))))
-  cli_end()
-}
-fun()
 
+tryerror(cli_ol() )
+tryerror(cli_li("File") )
+tryerror(ulid <- cli_ul() )
+tryerror(cli_li(argv$input_path) )
+tryerror(cli_end(ulid) )
+tryerror(cli_li("Statistics") )
+tryerror(ulid <- cli_ul() )
+tryerror(cli_li(paste0("Max_peak: ",as.character(max(flash_df$peak)))) )
+tryerror(cli_li(paste0("Median_peak: ",as.character(median(flash_df$peak)))) )
+tryerror(cli_li(paste0("Max_energy: ",as.character(max(flash_df$energy)))) )
+tryerror(cli_li(paste0("Median_energy: ",as.character(median(flash_df$energy)))) )
+tryerror(cli_li(paste0("Max_peak: ",as.character(nrow(flash_df)/( Time[flash_df$end[nrow(flash_df)]]-Time[flash_df$start[1]]      )))) )
+tryerror(cli_end() )
+
+
+debug(logger,"Finish")
 message('Finish')
 
 
