@@ -105,35 +105,35 @@ tryerror(output_file_path = file.path(csv_dir_path, paste(csv_file_name, '_', '_
 
 
 tryerror(Data = read.table(argv$input_path, header=TRUE, sep=","))
-debug(logger,"Loading input file successfully")
-debug_msg("Loading input file successfully")
+debug(logger,"Loading input file...")
+debug_msg("Loading input file...")
 tryerror(Data = na.omit(Data))
-debug(logger,sprintf("Omiting %.0f missing values successfully",sum(is.na(Data))))
-debug_msg(sprintf("Omiting %.0f missing values successfully",sum(is.na(Data))))
+debug(logger,sprintf("Omiting %.0f missing values...",sum(is.na(Data))))
+debug_msg(sprintf("Omiting %.0f missing values...",sum(is.na(Data))))
 tryerror(Time <- as.vector(Data[,1]))
-debug(logger,"Loading time series successfullly")
-debug_msg("Loading time series successfullly")
+debug(logger,"Loading time series...")
+debug_msg("Loading time series...")
 tryerror(Fa <- as.vector(Data[,2]))
-debug(logger,"Loading value series successfully")
-debug_msg("Loading value series successfully")
+debug(logger,"Loading value series...")
+debug_msg("Loading value series...")
 tryerror(clean_data <- data.frame(Fa,Time))
 tryerror(overview <- ggplot(clean_data,aes(Time,Fa))+geom_line()+xlab("Time")+ylab("Value")+ggtitle(paste(csv_file_name,"_original")))
 tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_original.png'))))
-debug(logger,"Saving original plot successfully")
-debug_msg("Saving original plot successfully")
+debug(logger,"Saving original plot...")
+debug_msg("Saving original plot...")
 
 
 
 tryerror(Large <- hill(Fa))
-debug(logger,"Identifying hills successfully")
-debug_msg("Identifying hills successfully")
+debug(logger,"Identifying hills...")
+debug_msg("Identifying hills...")
 tryerror(Large_threshold <- (quantile(Fa)[4]-quantile(Fa)[2])*argv$filter+quantile(Fa)[2])  ##²M°£fake peak
-debug(logger,sprintf("Setting hill filter:%f successfully",argv$filter))
-debug_msg(sprintf("Setting hill filter:%f successfully",argv$filter))
+debug(logger,sprintf("Setting hill filter:%f...",argv$filter))
+debug_msg(sprintf("Setting hill filter:%f...",argv$filter))
 tryerror(hillnotrim <- ggplot()+geom_line(aes(x=Time,y=Fa),color="grey")+geom_point(aes(x=Time[Large],y=Fa[Large]),shape=21, color="black", fill="#69b3a2")+ggtitle(paste(csv_file_name ,"_peaknotrim") )+xlab("Time")+ylab("Value"))
 tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_peaknotrim.png'))))
-debug(logger,"Saving peaknotrim plot successfully")
-debug_msg("Saving peaknotrim plot successfully")
+debug(logger,"Saving peaknotrim plot...")
+debug_msg("Saving peaknotrim plot...")
 
 
 
@@ -150,8 +150,8 @@ tryerror(for (i in 1:nrow(hillcount_df)){
 })
 tryerror(hillcount_plot <- ggplot(hillcount_df,aes(x=coefficient,y=hillcount))+geom_line()+geom_point(shape=21, color="black", fill="#8CEA00")+ggtitle(paste(csv_file_name,"_coefficient-peakcount"))+xlab("Coefficient")+ylab("Number of peak remained")+geom_text(label=hillcount_df$text, nudge_x = 0.25, nudge_y = 0.25, check_overlap = T))
 tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_coefficient-peakcount.png'))))
-debug(logger,"Saving coefficient-peakcount plot successfully")
-debug_msg("Saving coefficient-peakcount plot successfully")
+debug(logger,"Saving coefficient-peakcount plot...")
+debug_msg("Saving coefficient-peakcount plot...")
 
 tryerror(Large <- Large[which(Fa[Large]>Large_threshold)])
 tryerror(Time_Large_0 = Time[Large][1:length(Time[Large])-1])
@@ -172,17 +172,17 @@ if (smaller == 1)
 Large <- Large[-remove_index]
 }else 
 {Large = Large})
-debug(logger,"Filtering peaks successfully")
+debug(logger,"Filtering peaks...")
 debug_msg("Filtering peaks successfully")
 tryerror(hilltrimed <- ggplot()+geom_line(aes(x=Time,y=Fa))+geom_point(aes(x=Time[Large],y=Fa[Large]),shape=21, color="black", fill="#69b3a2")+geom_hline(yintercept = Large_threshold,col='#424200' )+ggtitle(paste(csv_file_name ,"_peaktrimed"))+xlab("Time")+ylab("Value"))
 tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_peaktrimed.png'))))
-debug(logger,"Saving peaktrimed plot successfully")
-debug_msg("Saving peaktrimed plot successfully")
+debug(logger,"Saving peaktrimed plot...")
+debug_msg("Saving peaktrimed plot...")
 
 
 tryerror(Minimum <- valley(Fa,Large))
-debug(logger,"Identifying valleys successfully")
-debug_msg("Identifying valleys successfully")
+debug(logger,"Identifying valleys...")
+debug_msg("Identifying valleys...")
 tryerror(flash_df <- data.frame(start = c(0) , end = c(0)) )
 tryerror(flash_df[1,1] <- Minimum[1])
 tryerror(for (i in 1:length(Minimum))
@@ -193,11 +193,11 @@ tryerror(for (i in 1:length(Minimum))
 })
 tryerror(hillvalley_plot <- ggplot()+geom_line(aes(x=Time,y=Fa))+geom_point(aes(x=Time[Large],y=Fa[Large]),shape=21, color="black", fill="#69b3a2")+geom_point(aes(x=Time[Minimum],y=Fa[Minimum]),shape=21, color="black", fill="#FFD306")+ggtitle(paste(csv_file_name,"_peak & valley")))
 tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_peak & valley.png'))))
-debug(logger,"Saving peak_valley plot successfully")
-debug_msg("Saving peak & valley plot successfully")
+debug(logger,"Saving peak_valley plot...")
+debug_msg("Saving peak & valley plot...")
 tryerror(write.table(flash_df,file.path(csv_dir_path, paste(csv_file_name,'_flash table.csv'))))
-debug(logger,"Saving flash table successfully")
-debug_msg("Saving flash table successfully")
+debug(logger,"Saving flash table...")
+debug_msg("Saving flash table...")
 
 
 
@@ -208,8 +208,8 @@ tryerror(for (i in 1:(nrow(flash_df)))
 tryerror(Time_cluster <- list())
 tryerror(for (i in 1:(nrow(flash_df)))
 {Time_cluster[[i]] <- Time[c(flash_df[i,1]):c(flash_df[i,2]) ]})
-debug(logger,"Building value clusters and time clusters successfully")
-debug_msg("Building value clusters and time clusters successfully")
+debug(logger,"Building value clusters and time clusters...")
+debug_msg("Building value clusters and time clusters...")
 
 
 tryerror(area_all <- c())
@@ -220,8 +220,8 @@ for (i in 1:(length(Fa_cluster[[j]])-1))
 }
 area_all[j] <- sum(area)
 })
-debug(logger,"Calculating curve area under each flash successfully")
-debug_msg("Calculating curve area under each flash successfully")
+debug(logger,"Calculating curve area under each flash...")
+debug_msg("Calculating curve area under each flash...")
 
 
 tryerror(base_line = argv$en)
@@ -241,8 +241,8 @@ tryerror(for (j in 1:length(Time_cluster))
 tryerror(flash_energy = area_all-base_area)
 tryerror(flash_df$energy <- flash_energy)
 tryerror(write.table(flash_df,sep=",",row.names=F,file.path(csv_dir_path, paste(csv_file_name,'_flash table.csv'))))
-debug_msg("Calculating flash energy successfully")
-debug_msg("Saving flash table successfully")
+debug_msg("Calculating flash energy...")
+debug_msg("Saving flash table...")
 
 
 tryerror(peak <- c())
@@ -251,21 +251,21 @@ tryerror(for (j in 1:length(Fa_cluster))
 })
 tryerror(flash_df$peak <- peak)
 tryerror(write.table(flash_df,sep=",",row.names=F,file.path(csv_dir_path, paste(csv_file_name,'_flash table.csv'))))
-debug(logger,"Saving flash table successfully")
-debug_msg("Saving flash table successfully")
+debug(logger,"Saving flash table...")
+debug_msg("Saving flash table...")
 
 
 tryerror(flash_df$number <- seq(1,nrow(flash_df),1))
 tryerror(peak_plot <- ggplot(flash_df,aes(x = number,y= peak)) +geom_bar(stat="identity", color="#e9ecef", alpha=0.9) +ggtitle(paste(csv_file_name ,"_peak")) +theme(plot.title = element_text(size=15) ))
 tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_peak_barplot.png'))))
-debug(logger,"Saving peak barplot successfully")
-debug_msg("Saving peak barplot successfully")
+debug(logger,"Saving peak barplot...")
+debug_msg("Saving peak barplot...")
 
 
 tryerror(peak_plot <- ggplot(flash_df,aes(x = number,y= energy)) +geom_bar(stat="identity", color="blue", alpha=0.9,fill="white") +ggtitle(paste(csv_file_name ,"_energy")) +theme(plot.title = element_text(size=15) ))
 tryerror(ggsave(file.path(csv_dir_path, paste(csv_file_name,'_energy_barplot.png'))))
-debug(logger,"Saving energy barplot successfully")
-debug_msg("Saving energy barplot successfully")
+debug(logger,"Saving energy barplot...")
+debug_msg("Saving energy barplot...")
 
 
 tryerror(max_peak <- stralignR(c("max_peak",max(flash_df$peak))) )
@@ -280,8 +280,8 @@ tryerror(stastistics_name <- c(statistics[c(1,3,5,7,9)],"\n") )
 tryerror(stastistics_value <- statistics[c(2,4,6,8,10)] )
 tryerror(cat(stastistics_name,sep="   ",file=output_file_path, append=TRUE) )
 tryerror(cat(stastistics_value,sep="   ",file=output_file_path, append=TRUE) )
-debug(logger,"Outputing statistics successfully")
-debug_msg("Outputing statistics successfully")
+debug(logger,"Outputing statistics...")
+debug_msg("Outputing statistics...")
 
 
 tryerror(cli_ol() )

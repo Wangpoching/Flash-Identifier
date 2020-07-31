@@ -10,7 +10,6 @@ Flash_Identifier is a toolkit for extracting flash signals from a timestamp data
 * Linux
 * R 3.4 and higher
 * To make Flash_Identifier.R excutable
-
 `$ chmod -rwx Flash_Identifier.R`
 ## Test
 Download a timestamp data measured from *Abscondita  cerata*:
