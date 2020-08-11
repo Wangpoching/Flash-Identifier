@@ -35,27 +35,27 @@ Larger peak filter coefficient will produce a larger peak threshold, and vice ve
 ## Recipes
 To identify *Luciola kagiana* flash, I use:
 
-`$ ./Flah_Identifier.R -180413NK_RF5.csv`
+`$ ./Flash_Identifier.R -180413NK_RF5.csv`
 
 or I want to open the debug mode:
 
-`$ ./Flah_Identifier.R -180413NK_RF5.csv --debug`
+`$ ./Flash_Identifier.R -180413NK_RF5.csv --debug`
 
 If I want to define an environmental background 10 (defalt=0) by myself:
 
-`$ ./Flah_Identifier.R -180413NK_RF5.csv --debug --en 10`
+`$ ./Flash_Identifier.R -180413NK_RF5.csv --debug --en 10`
 
 or just use the median value of the valleys as environmental background:
 
-`$ ./Flah_Identifier.R -180413NK_RF5.csv --debug --en_median`
+`$ ./Flash_Identifier.R -180413NK_RF5.csv --debug --en_median`
 
 or just use the minimum value of the valleys as environmental background:
 
-`$ ./Flah_Identifier.R -180413NK_RF5.csv --debug --en_minimum`
+`$ ./Flash_Identifier.R -180413NK_RF5.csv --debug --en_minimum`
 
 If I want to set a peak filter coefficient 1 (defalt=0.3) by myself:
 
-`$ ./Flah_Identifier.R -180413NK_RF5.csv --debug --filter 1`
+`$ ./Flash_Identifier.R -180413NK_RF5.csv --debug --filter 1`
 
 
 
